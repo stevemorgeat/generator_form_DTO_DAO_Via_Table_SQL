@@ -58,89 +58,36 @@ if ($btValiderTout != null) {
             $tData = $lrs->fetchAll();
 
             /*
-             * SI CSV
+             * SI FORM
              */
             if ($rbSortie == "form") {
-                // Initialisations
-                $lsContenu = "";
-                $lsEntetes = "";
-
-//                /*
-//                  MODE FETCHALL
-//                 */
-//                /*
-//                  La première ligne
-//                 */
-//                list($cle, $valeur) = each($tData);
-//                //echo "<hr>$cle : $valeur";
-//                echo "<br><pre>";
-//                //var_dump($lsEntetes);
-//                echo "</pre><br>";
-//                /*
-//                  Les autres lignes
-//                 */
-//                foreach ($tData as $ligne) {
-//                    foreach ($ligne as $valeur) {
-//                        $lsContenu .= $valeur . ";";
-//                    }
-//                    $lsContenu = substr($lsContenu, 0, -1);
-//                    $lsContenu.= "\n";
-//                }
-//
-//                /*
-//                  MODE WHILE-FETCH
-//                 */
-////                /*
-////                  Le premier enregistrement de la table
-////                  pour principalement récupérer les noms des colonnes
-////                  et le contenu de la 1e ligne
-////                 */
-////                $ligne = $lrs->fetch();
-////                foreach ($ligne as $colonne => $valeur) {
-////                    $lsEntetes .= $colonne . ";";
-////                    $lsContenu .= $valeur . ";";
-////                }
-////                $lsEntetes = substr($lsEntetes, 0, -1);
-////                $lsContenu = substr($lsContenu, 0, -1);
-////                $lsEntetes .= "\n";
-////                $lsContenu .= "\n";
-////
-////                // On boucle sur les lignes à partir de la 2ème
-////                while ($ligne = $lrs->fetch()) {
-////                    // On boucle sur les colonnes
-////                    foreach ($ligne as $valeur) {
-////                        // On recupere les valeurs des colonnes
-////                        $lsContenu .= $valeur . ";";
-////                    }
-////                    // On enleve le dernier ;
-////                    $lsContenu = substr($lsContenu, 0, -1);
-////                    // On ajoute le separateur d'enr
-////                    $lsContenu .= "\n";
-////                }
-//                // Suppression du dernier saut de ligne
-//                $lsContenu = substr($lsContenu, 0, -1);
-//
-//                // On place les entetes avant le contenu
-//                $lsContenu = $lsEntetes . $lsContenu;
-//                file_put_contents("$nomTable.txt", $lsContenu);
-//                // Pour l'affichage
-//                $lsContenu = nl2br($lsContenu);
-            }
+ //--------------------------------------------------------------------------------------------------------------------
+                /*
+                 * Code ici
+                 */
+ //--------------------------------------------------------------------------------------------------------------------               
+                }
 
             /*
-             * SI JSON
+             * SI DTO
              */
             if ($rbSortie == "dto") {
-//                //$tData = $lrs->fetchAll();
-//                $lsContenu = json_encode($tData);
-//                file_put_contents("$nomTable.json", $lsContenu);
-            }
-            
+ //--------------------------------------------------------------------------------------------------------------------
+                /*
+                 *  Code ici
+                 */
+ //--------------------------------------------------------------------------------------------------------------------               
+               }
+             /*
+              *  SI DAO
+              */
             if ($rbSortie == "dao") {
-//                //$tData = $lrs->fetchAll();
-//                $lsContenu = json_encode($tData);
-//                file_put_contents("$nomTable.json", $lsContenu);
-            }
+ //--------------------------------------------------------------------------------------------------------------------
+                /*
+                 *  Code ici
+                 */
+ //--------------------------------------------------------------------------------------------------------------------               
+                }
             /*
               Fermeture du curseur
              */
