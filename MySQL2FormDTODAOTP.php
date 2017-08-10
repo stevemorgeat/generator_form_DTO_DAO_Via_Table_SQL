@@ -159,7 +159,7 @@ if ($btValiderTout != null) {
                 $lsContenu.="\n//--méthode\n\n";
                 $lsContenu.= $lsContenu2;
 
-                $lsContenu.="\n\n}";
+                $lsContenu.="\n\n}\n\n?>";
 
                 /*
                  * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
