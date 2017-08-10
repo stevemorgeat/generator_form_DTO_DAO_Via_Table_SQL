@@ -143,6 +143,7 @@ if ($btValiderTout != null) {
                 $lsContenu.="<?php \n\n";
                 $lsCar = new TravailChaineCaractere(); //préparation à la méthode camelize 
                 $lsContenu.="//--" .$lsCar->snakeToMajPremierelettreMot($nomTable) . ".php\n\n";// snakeToMajPremierelettreMot pour mettre en majuscule la première lettre de chaque mot
+                 $lsContenu.="Class " .$lsCar->snakeToMajPremierelettreMot($nomTable) . " {\n\n";
                 $lsContenu.="//--propriétés\n\n";
                 for ($i = 0; $i < count($tEntetes); $i++) {
                     $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
