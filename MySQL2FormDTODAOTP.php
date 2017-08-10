@@ -78,15 +78,18 @@ if ($btValiderTout != null) {
               Fermeture du curseur
              */
             $lrs->closeCursor();
+            /*
+             * je transforme ma chaine des entêtes en tableau des entêtes
+             */
+            $tEntetes = explode(";", $lsEntetes);
 
+
+            //------------------------------------------------------------------------------------------------------------------------               
             /*
              * SI FORM
              */
             if ($rbSortie == "form") {
-                /*
-                 * je transforme ma chaine des entêtes en tableau des entêtes
-                 */
-                $tEntetes = explode(";", $lsEntetes);
+
                 /*
                  * on ecrit dans lsContenu le formulaire
                  */
@@ -107,17 +110,18 @@ if ($btValiderTout != null) {
                  */
                 $lsContenu.="<input type='submit' name='valider' value='GO'>\n";
                 $lsContenu.="</fieldset> \n </form>\n";
-                
+
                 /*
                  * optionnel (affichage graphique)
                  */
-                $lsAffichage= $lsContenu;
-                
+                $lsAffichage = $lsContenu;
+
                 /*
                  * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
                  * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 * et les \n en <br> pour un affichage du code plus lisible.
                  */
-                
+
                 $lsContenu = str_replace("<", "&lt;", $lsContenu);
                 $lsContenu = str_replace(">", "&gt;", $lsContenu);
                 $lsContenu = nl2br($lsContenu);
