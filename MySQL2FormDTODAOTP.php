@@ -8,11 +8,13 @@ $listesBDs = "";
 $listeTables = "";
 $nomBD = "";
 $nomTable = "";
+$lsEntetes = "";
 $lsContenu = "";
 $lsMessage = "";
 
 require_once 'Connexion.php';
 require_once 'Metabase.class.php';
+require_once 'TravailChaineCaractere.php';
 
 $lcnx = Connexion::seConnecter("cours.ini"); //méthode se connecter
 Connexion::initialiserTransaction($lcnx); //beginTransaction() (on commence la transaction)
@@ -56,39 +58,76 @@ if ($btValiderTout != null) {
             $lrs = $lcnx->query($lsSQL);
             $lrs->setFetchMode(PDO::FETCH_ASSOC);
             $tData = $lrs->fetchAll();
+            //--------------------------------------------------------------------------------------------------------------------
+            /*
+              MODE FETCHALL
+             */
+            /*
+              La première ligne
+              http://php.net/manual/fr/function.each.php
+              each() retourne la paire clé/valeur courante du tableau array et avance le pointeur de tableau.
+             */
+            $t = each($tData);
+            foreach ($t[1] as $key => $value) {
+                $lsEntetes .= "$key;";
+            }
+            $lsEntetes = substr($lsEntetes, 0, -1);
+
+            /*
+              Fermeture du curseur
+             */
+            $lrs->closeCursor();
 
             /*
              * SI FORM
              */
             if ($rbSortie == "form") {
- //--------------------------------------------------------------------------------------------------------------------
                 /*
-                 * Code ici
-                 * test branche Steve
+                 * je transforme ma chaine des entêtes en tableau des entêtes
                  */
- //--------------------------------------------------------------------------------------------------------------------               
+                $tEntetes = explode(";", $lsEntetes);
+                /*
+                 * on ecrit dans lsContenu le formulaire
+                 */
+                $lsContenu.="&lt;form action='' method=''&gt;\n";
+                $lsContenu.="&lt;fieldset&gt;&lt;legend&gt; $nomTable &lt;/legend&gt;\n";
+                
+               /*
+                * boucle pour créer les labels et inputs
+                */
+                for($i=0;$i<count($tEntetes);$i++){
+                    $lsSnake= new TravailChaineCaractere();
+                    $lsContenu.= "&lt;label&gt;".$lsSnake->snakeToUpperTitre($tEntetes[$i])." :&lt;/label&gt;\n";
+                    $lsContenu.= "&lt;input type='text' name='". $lsSnake->camelize($tEntetes[$i])."'&gt;\n";
                 }
+                $lsContenu.="&lt;input type='submit' name='valider' value='GO'&gt;\n";
+                $lsContenu.="&lt;/fieldset&gt;&lt;/form&gt;\n";
+                $lsContenu= nl2br($lsContenu);
+            }
+
+            //--------------------------------------------------------------------------------------------------------------------               
+
 
             /*
              * SI DTO
              */
             if ($rbSortie == "dto") {
- //--------------------------------------------------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------------------------------------------
                 /*
                  *  Code ici
                  */
- //--------------------------------------------------------------------------------------------------------------------               
-               }
-             /*
-              *  SI DAO
-              */
+                //--------------------------------------------------------------------------------------------------------------------               
+            }
+            /*
+             *  SI DAO
+             */
             if ($rbSortie == "dao") {
- //--------------------------------------------------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------------------------------------------
                 /*
                  *  Code ici
                  */
- //--------------------------------------------------------------------------------------------------------------------               
-                }
+                //--------------------------------------------------------------------------------------------------------------------               
+            }
             /*
               Fermeture du curseur
              */
@@ -179,9 +218,9 @@ Connexion::seDeconnecter($lcnx);
         </article>
 
         <aside>
-            <p>
+            <code>
                 <?php echo $lsContenu; ?>
-            </p>
+            </code>
         </aside>
 
         <footer>
