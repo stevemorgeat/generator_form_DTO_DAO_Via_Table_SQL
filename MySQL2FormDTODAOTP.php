@@ -1,6 +1,6 @@
 <?php
 /*
-  MySQL2JsonCsvXmlExo.php
+  MySQL2FormDTODAO.php
  */
 session_start();
 
@@ -8,11 +8,15 @@ $listesBDs = "";
 $listeTables = "";
 $nomBD = "";
 $nomTable = "";
+$lsEntetes = "";
 $lsContenu = "";
+$lsContenu2 = "";
+$lsAffichage = "";
 $lsMessage = "";
 
 require_once 'Connexion.php';
 require_once 'Metabase.class.php';
+require_once 'TravailChaineCaractere.php';
 
 $lcnx = Connexion::seConnecter("cours.ini"); //méthode se connecter
 Connexion::initialiserTransaction($lcnx); //beginTransaction() (on commence la transaction)
@@ -56,38 +60,127 @@ if ($btValiderTout != null) {
             $lrs = $lcnx->query($lsSQL);
             $lrs->setFetchMode(PDO::FETCH_ASSOC);
             $tData = $lrs->fetchAll();
+            //--------------------------------------------------------------------------------------------------------------------
+            /*
+              MODE FETCHALL
+             */
+            /*
+              La première ligne
+              http://php.net/manual/fr/function.each.php
+              each() retourne la paire clé/valeur courante du tableau array et avance le pointeur de tableau.
+             */
+            $t = each($tData);
+            foreach ($t[1] as $key => $value) {
+                $lsEntetes .= "$key;";
+            }
+            $lsEntetes = substr($lsEntetes, 0, -1);
 
+            /*
+              Fermeture du curseur
+             */
+            $lrs->closeCursor();
+            /*
+             * je transforme ma chaine des entêtes en tableau des entêtes
+             */
+            $tEntetes = explode(";", $lsEntetes);
+
+
+            //------------------------------------------------------------------------------------------------------------------------               
             /*
              * SI FORM
              */
             if ($rbSortie == "form") {
- //--------------------------------------------------------------------------------------------------------------------
+
                 /*
-                 * Code ici
+                 * on ecrit dans lsContenu le formulaire
                  */
- //--------------------------------------------------------------------------------------------------------------------               
+                $lsContenu.="<form action='' method=''>\n";
+                $lsCar = new TravailChaineCaractere(); //préparation à la méthode upper pour mettre en majuscule le nom de la table sélectionnée
+                $lsContenu.="<fieldset> \n <legend> " . $lsCar->upper($nomTable) . " </legend>\n";
+
+                /*
+                 * boucle pour créer les labels et inputs
+                 */
+                for ($i = 0; $i < count($tEntetes); $i++) {
+                    $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
+                    $lsContenu.= "<label>" . $lsSnake->snakeToUpperTitre($tEntetes[$i]) . " :</label>\n";
+                    $lsContenu.= "<input type='text' name='" . $lsSnake->camelize($tEntetes[$i]) . "'>\n";
                 }
+                /*
+                 * fin du formulaire avec le bouton valider
+                 */
+                $lsContenu.="<input type='submit' name='valider' value='GO'>\n";
+                $lsContenu.="</fieldset> \n </form>\n";
+
+                /*
+                 * optionnel (affichage graphique)
+                 */
+                $lsAffichage = $lsContenu;
+
+                /*
+                 * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
+                 * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 * et les \n en <br> pour un affichage du code plus lisible.
+                 */
+
+                $lsContenu = str_replace("<", "&lt;", $lsContenu);
+                $lsContenu = str_replace(">", "&gt;", $lsContenu);
+                $lsContenu = nl2br($lsContenu);
+            }
+
+            //------------------------------------------------------------------------------------------------------------------------               
+
 
             /*
              * SI DTO
              */
             if ($rbSortie == "dto") {
- //--------------------------------------------------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------------------------------------------
+
                 /*
-                 *  Code ici
+                 * on ecrit dans lsContenu la page php en mode text
                  */
- //--------------------------------------------------------------------------------------------------------------------               
-               }
-             /*
-              *  SI DAO
-              */
-            if ($rbSortie == "dao") {
- //--------------------------------------------------------------------------------------------------------------------
-                /*
-                 *  Code ici
-                 */
- //--------------------------------------------------------------------------------------------------------------------               
+                $lsContenu.="<?php \n\n";
+                $lsCar = new TravailChaineCaractere(); //préparation à la méthode camelize 
+                $lsContenu.="//--" .$lsCar->snakeToMajPremierelettreMot($nomTable) . ".php\n\n";// snakeToMajPremierelettreMot pour mettre en majuscule la première lettre de chaque mot
+                $lsContenu.="//--propriétés\n\n";
+                for ($i = 0; $i < count($tEntetes); $i++) {
+                    $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
+                    $lsContenu.="private $" . $lsSnake->camelize($tEntetes[$i]) . ";\n";
+                    /*
+                     * dans lsContenu2 je stock les public function getters et setters
+                     */
+                    $lsContenu2.= "public function get" . $lsSnake->snakeToMajPremierelettreMot($tEntetes[$i]) . "(){\n";
+                    $lsContenu2.= "return &#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "\n}\n\n";
+                    $lsContenu2.= "public function set" . $lsSnake->snakeToMajPremierelettreMot($tEntetes[$i]) . "($" . $lsSnake->camelize($tEntetes[$i]) . "){\n";
+                    $lsContenu2.= "&#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "= $" . $lsSnake->camelize($tEntetes[$i]) . "\n}\n\n";
                 }
+                $lsContenu.="\n//--méthode\n\n";
+                $lsContenu.= $lsContenu2;
+
+                $lsContenu.="\n\n}";
+
+                /*
+                 * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
+                 * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 * et les \n en <br> pour un affichage du code plus lisible.
+                 */
+                $lsContenu = str_replace("<", "&lt;", $lsContenu);
+                $lsContenu = str_replace(">", "&gt;", $lsContenu);
+                $lsContenu = nl2br($lsContenu);
+
+                //--------------------------------------------------------------------------------------------------------------------               
+            }
+            /*
+             *  SI DAO
+             */
+            if ($rbSortie == "dao") {
+                //--------------------------------------------------------------------------------------------------------------------
+                /*
+                 *  Code ici
+                 */
+                //--------------------------------------------------------------------------------------------------------------------               
+            }
             /*
               Fermeture du curseur
              */
@@ -178,9 +271,11 @@ Connexion::seDeconnecter($lcnx);
         </article>
 
         <aside>
-            <p>
+            <code>
                 <?php echo $lsContenu; ?>
-            </p>
+            </code>
+            <hr>
+            <p><?php echo $lsAffichage; ?></p>
         </aside>
 
         <footer>
