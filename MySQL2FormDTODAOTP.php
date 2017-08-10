@@ -119,7 +119,7 @@ if ($btValiderTout != null) {
 
                 /*
                  * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
-                 * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 * on utilise le code ascii car sinon sur la page le text html ne s'affichage pas, les balises oui
                  * et les \n en <br> pour un affichage du code plus lisible.
                  */
 
@@ -142,8 +142,8 @@ if ($btValiderTout != null) {
                  */
                 $lsContenu.="<?php \n\n";
                 $lsCar = new TravailChaineCaractere(); //préparation à la méthode camelize 
-                $lsContenu.="//--" .$lsCar->snakeToMajPremierelettreMot($nomTable) . ".php\n\n";// snakeToMajPremierelettreMot pour mettre en majuscule la première lettre de chaque mot
-                 $lsContenu.="Class " .$lsCar->snakeToMajPremierelettreMot($nomTable) . " {\n\n";
+                $lsContenu.="//--" . $lsCar->snakeToMajPremierelettreMot($nomTable) . ".php\n\n"; // snakeToMajPremierelettreMot pour mettre en majuscule la première lettre de chaque mot
+                $lsContenu.="Class " . $lsCar->snakeToMajPremierelettreMot($nomTable) . " {\n\n";
                 $lsContenu.="//--propriétés\n\n";
                 for ($i = 0; $i < count($tEntetes); $i++) {
                     $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
@@ -163,7 +163,7 @@ if ($btValiderTout != null) {
 
                 /*
                  * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
-                 * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 * on utilise le code ascii car sinon sur la page le text html ne s'affichage pas, les balises oui
                  * et les \n en <br> pour un affichage du code plus lisible.
                  */
                 $lsContenu = str_replace("<", "&lt;", $lsContenu);
@@ -177,9 +177,25 @@ if ($btValiderTout != null) {
              */
             if ($rbSortie == "dao") {
                 //--------------------------------------------------------------------------------------------------------------------
+
                 /*
-                 *  Code ici
+                 * on ecrit dans lsContenu la page php en mode text
                  */
+                $lsContenu.="<?php \n\n";
+                $lsCar = new TravailChaineCaractere(); //préparation à la méthode camelize 
+                $lsContenu.="/**\n*Description of " . $lsCar->snakeToMajPremierelettreMot($nomTable) . "DAO.php\n*\n*@author Steve MORGEAT\n*\n*/\n\n"; // snakeToMajPremierelettreMot pour mettre en majuscule la première lettre de chaque mot
+                $lsContenu.="require_once '" . $lsCar->snakeToMajPremierelettreMot($nomTable) . ".php';\n\n";
+                $lsContenu.="Class "  . $lsCar->snakeToMajPremierelettreMot($nomTable) . "DAO {\n\n";
+                
+                /*
+                 * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
+                 * on utilise le code ascii car sinon sur la page le text html ne s'affichage pas, les balises oui
+                 * et les \n en <br> pour un affichage du code plus lisible.
+                 */
+                $lsContenu = str_replace("<", "&lt;", $lsContenu);
+                $lsContenu = str_replace(">", "&gt;", $lsContenu);
+                $lsContenu = nl2br($lsContenu);
+
                 //--------------------------------------------------------------------------------------------------------------------               
             }
             /*
