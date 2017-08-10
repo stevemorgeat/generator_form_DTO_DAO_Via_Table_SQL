@@ -10,6 +10,7 @@ $nomBD = "";
 $nomTable = "";
 $lsEntetes = "";
 $lsContenu = "";
+$lsContenu2 = "";
 $lsAffichage = "";
 $lsMessage = "";
 
@@ -94,8 +95,8 @@ if ($btValiderTout != null) {
                  * on ecrit dans lsContenu le formulaire
                  */
                 $lsContenu.="<form action='' method=''>\n";
-                $lsUpper = new TravailChaineCaractere(); //préparation à la méthode upper pour mettre en majuscule le nom de la table sélectionnée
-                $lsContenu.="<fieldset> \n <legend> " . $lsUpper->upper($nomTable) . " </legend>\n";
+                $lsCar = new TravailChaineCaractere(); //préparation à la méthode upper pour mettre en majuscule le nom de la table sélectionnée
+                $lsContenu.="<fieldset> \n <legend> " . $lsCar->upper($nomTable) . " </legend>\n";
 
                 /*
                  * boucle pour créer les labels et inputs
@@ -135,9 +136,39 @@ if ($btValiderTout != null) {
              */
             if ($rbSortie == "dto") {
                 //--------------------------------------------------------------------------------------------------------------------
+
                 /*
-                 *  Code ici
+                 * on ecrit dans lsContenu la page php en mode text
                  */
+                $lsContenu.="<?php \n\n";
+                $lsCar = new TravailChaineCaractere(); //préparation à la méthode camelize 
+                $lsContenu.="//--" .$lsCar->snakeToMajPremierelettreMot($nomTable) . ".php\n\n";// snakeToMajPremierelettreMot pour mettre en majuscule la première lettre de chaque mot
+                $lsContenu.="//--propriétés\n\n";
+                for ($i = 0; $i < count($tEntetes); $i++) {
+                    $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
+                    $lsContenu.="private $" . $lsSnake->camelize($tEntetes[$i]) . ";\n";
+                    /*
+                     * dans lsContenu2 je stock les public function getters et setters
+                     */
+                    $lsContenu2.= "public function get" . $lsSnake->snakeToMajPremierelettreMot($tEntetes[$i]) . "(){\n";
+                    $lsContenu2.= "return &#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "\n}\n\n";
+                    $lsContenu2.= "public function set" . $lsSnake->snakeToMajPremierelettreMot($tEntetes[$i]) . "($" . $lsSnake->camelize($tEntetes[$i]) . "){\n";
+                    $lsContenu2.= "&#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "= $" . $lsSnake->camelize($tEntetes[$i]) . "\n}\n\n";
+                }
+                $lsContenu.="\n//--méthode\n\n";
+                $lsContenu.= $lsContenu2;
+
+                $lsContenu.="\n\n}";
+
+                /*
+                 * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
+                 * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 * et les \n en <br> pour un affichage du code plus lisible.
+                 */
+                $lsContenu = str_replace("<", "&lt;", $lsContenu);
+                $lsContenu = str_replace(">", "&gt;", $lsContenu);
+                $lsContenu = nl2br($lsContenu);
+
                 //--------------------------------------------------------------------------------------------------------------------               
             }
             /*

@@ -22,12 +22,16 @@ class TravailChaineCaractere {
         return lcfirst(strtr(ucwords(strtr($str, ['_' => ' '])), [' ' => '']));
     }
 
-    
-    public function snakeToUpperTitre($str){// méthode pour passer de snake à titre majuscule séparer par des espace
+    public function snakeToMajPremierelettreMot($str) {// méthode pour cameliser une chaine de caractère écrite en snake
+        return strtr(ucwords(strtr($str, ['_' => ' '])), [' ' => '']);
+    }
+
+    public function snakeToUpperTitre($str) {// méthode pour passer de snake à titre majuscule séparer par des espace
         return strtoupper(str_replace("_", " ", $str));
     }
-    
-    public function upper($str){// méthode mettre en majuscule une chaine de caractère (un peu inutile)
+
+    public function upper($str) {// méthode mettre en majuscule une chaine de caractère (un peu inutile)
         return strtoupper($str);
     }
+
 }
