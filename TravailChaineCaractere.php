@@ -23,7 +23,11 @@ class TravailChaineCaractere {
     }
 
     
-    public function snakeToUpperTitre($str){
+    public function snakeToUpperTitre($str){// méthode pour passer de snake à titre majuscule séparer par des espace
         return strtoupper(str_replace("_", " ", $str));
+    }
+    
+    public function upper($str){// méthode mettre en majuscule une chaine de caractère (un peu inutile)
+        return strtoupper($str);
     }
 }

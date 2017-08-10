@@ -1,6 +1,6 @@
 <?php
 /*
-  MySQL2JsonCsvXmlExo.php
+  MySQL2FormDTODAO.php
  */
 session_start();
 
@@ -10,6 +10,7 @@ $nomBD = "";
 $nomTable = "";
 $lsEntetes = "";
 $lsContenu = "";
+$lsAffichage = "";
 $lsMessage = "";
 
 require_once 'Connexion.php';
@@ -89,23 +90,40 @@ if ($btValiderTout != null) {
                 /*
                  * on ecrit dans lsContenu le formulaire
                  */
-                $lsContenu.="&lt;form action='' method=''&gt;\n";
-                $lsContenu.="&lt;fieldset&gt;&lt;legend&gt; $nomTable &lt;/legend&gt;\n";
-                
-               /*
-                * boucle pour créer les labels et inputs
-                */
-                for($i=0;$i<count($tEntetes);$i++){
-                    $lsSnake= new TravailChaineCaractere();
-                    $lsContenu.= "&lt;label&gt;".$lsSnake->snakeToUpperTitre($tEntetes[$i])." :&lt;/label&gt;\n";
-                    $lsContenu.= "&lt;input type='text' name='". $lsSnake->camelize($tEntetes[$i])."'&gt;\n";
+                $lsContenu.="<form action='' method=''>\n";
+                $lsUpper = new TravailChaineCaractere(); //préparation à la méthode upper pour mettre en majuscule le nom de la table sélectionnée
+                $lsContenu.="<fieldset> \n <legend> " . $lsUpper->upper($nomTable) . " </legend>\n";
+
+                /*
+                 * boucle pour créer les labels et inputs
+                 */
+                for ($i = 0; $i < count($tEntetes); $i++) {
+                    $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
+                    $lsContenu.= "<label>" . $lsSnake->snakeToUpperTitre($tEntetes[$i]) . " :</label>\n";
+                    $lsContenu.= "<input type='text' name='" . $lsSnake->camelize($tEntetes[$i]) . "'>\n";
                 }
-                $lsContenu.="&lt;input type='submit' name='valider' value='GO'&gt;\n";
-                $lsContenu.="&lt;/fieldset&gt;&lt;/form&gt;\n";
-                $lsContenu= nl2br($lsContenu);
+                /*
+                 * fin du formulaire avec le bouton valider
+                 */
+                $lsContenu.="<input type='submit' name='valider' value='GO'>\n";
+                $lsContenu.="</fieldset> \n </form>\n";
+                
+                /*
+                 * optionnel (affichage graphique)
+                 */
+                $lsAffichage= $lsContenu;
+                
+                /*
+                 * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
+                 * on utilise le code ascii car sinon sur la page html l'affichage de lsContenu 
+                 */
+                
+                $lsContenu = str_replace("<", "&lt;", $lsContenu);
+                $lsContenu = str_replace(">", "&gt;", $lsContenu);
+                $lsContenu = nl2br($lsContenu);
             }
 
-            //--------------------------------------------------------------------------------------------------------------------               
+            //------------------------------------------------------------------------------------------------------------------------               
 
 
             /*
@@ -221,6 +239,8 @@ Connexion::seDeconnecter($lcnx);
             <code>
                 <?php echo $lsContenu; ?>
             </code>
+            <hr>
+            <p><?php echo $lsAffichage; ?></p>
         </aside>
 
         <footer>
