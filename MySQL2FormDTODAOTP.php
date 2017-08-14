@@ -226,7 +226,7 @@ if ($btValiderTout != null) {
                 $lsContenu.= "public static function insert(PDO &#36;pcnx, &#36;$nomTable) {\n\n\n";
 
                 $lsContenu.= "&#36;tValeurs = array($lsContenu2);\n\n";
-                $lsContenu.= "&#36;lsSQL = 'INSERT INTO $nomTable($lsContenu6) VALUES($lsContenu4)'\n\n";
+                $lsContenu.= "&#36;lsSQL = 'INSERT INTO $nomTable($lsContenu3) VALUES($lsContenu4)'\n\n";
                 $lsContenu.= "try {\n\n";
                 $lsContenu.= "&#36;lcmd = &#36;pcnx->prepare(&#36;lsSQL);\n";
                 $lsContenu.= "&#36;lcmd->execute(&#36;tValeurs);\n";
