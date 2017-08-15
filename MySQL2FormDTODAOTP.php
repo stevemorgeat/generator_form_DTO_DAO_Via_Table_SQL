@@ -2,8 +2,15 @@
 /*
   MySQL2FormDTODAO.php
  */
+
+/*
+ * Session start pour plutard garder le noms de la BD dans une variable de session
+ */
 session_start();
 
+/*
+ * initialisation de mes variables
+ */
 $listesBDs = "";
 $listeTables = "";
 $nomBD = "";
@@ -18,6 +25,9 @@ $lsContenu6 = "";
 $lsAffichage = "";
 $lsMessage = "";
 
+/*
+ * fusion avec mes Class bibliothèques
+ */
 require_once 'Connexion.php';
 require_once 'Metabase.class.php';
 require_once 'TravailChaineCaractere.php';
@@ -25,6 +35,9 @@ require_once 'TravailChaineCaractere.php';
 $lcnx = Connexion::seConnecter("cours.ini"); //méthode se connecter via des propriétés. Pour vous connecter à votre base de donnée, changé le nom de la base de donnée dans le fichier INI par la votre.
 Connexion::initialiserTransaction($lcnx); //beginTransaction() (on commence la transaction)
 
+/*
+ *  méthode pour récupérer les bases de données et les afficher dans un select avec des options
+ */
 $tBDs = Metabase::getBDsFromServeur($lcnx);
 foreach ($tBDs as $bd) {
     if ($bd !== "information_schema" &&$bd !== "afg_paysagiste" &&$bd !== "mysql" && $bd !== "performance_schema" && $bd !== "phpmyadmin" && $bd !== "test") {// je garde que la base de donnée "cours"
@@ -33,7 +46,7 @@ foreach ($tBDs as $bd) {
 }
 Connexion::validerTransaction($lcnx); //commit() (validation de la transaction)
 /*
- * AFFICHAGE LISTE DES TABLES D'UNE BD
+ * affichage des tables de la BD
  */
 $btValiderBD = filter_input(INPUT_GET, "btValiderBD");
 if ($btValiderBD != null) {
@@ -50,7 +63,7 @@ if (isSet($_SESSION["bd"])) {
 }
 
 /*
- * AFFICHAGE FINAL ...
+ * affichage final ...
  */
 $btValiderTout = filter_input(INPUT_GET, "btValiderTout");
 
@@ -68,8 +81,10 @@ if ($btValiderTout != null) {
             $tData = $lrs->fetchAll();
             //--------------------------------------------------------------------------------------------------------------------
             /*
-              MODE FETCHALL
+              mode fetchAll
              */
+            
+            
             /*
               La première ligne
               http://php.net/manual/fr/function.each.php
@@ -191,17 +206,20 @@ if ($btValiderTout != null) {
                 $lsPrimaryKey = Metabase::getColumnsNamesPKFromTable($lcnx, $nomBD, $nomTable);
                 $lscolonnes = Metabase::getColumnsNamesFromTable($lcnx, $nomBD, $nomTable);
                 for ($i = 0; $i < count($lscolonnes); $i++) {
+                    /*
+                     * boucle qui va travailler pour obtenir mes contenus pour les 3 ordres SQL INSERT, UPDATE et DELETE
+                     */
                     $lsContenu2.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lscolonnes[$i]) . "(),"; // pour le tValeurs de INSERT
                     $lsContenu3.= $lscolonnes[$i] . ","; // pour l'ordre sql de INSERT
                     $lsContenu4.= "?,"; // pour l'ordre sql de INSERT
 
-                    if ($lscolonnes !== $lsPrimaryKey[0]) {//pour le tValeurs de l'UPDATE et son ordre sql sans la PK qui ira dans le WHERE
+                    if ($lscolonnes !== $lsPrimaryKey[0]) {//pour le tValeurs de l'UPDATE et son ordre sql sans la PK qui ira dans le WHERE. la PK sera également utilisée pour le DELETE
                         $lsContenu5.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lscolonnes[$i]) . "(),";
                         $lsContenu6.= $lscolonnes[$i] . "= ?,";
                     }//fin if
                 }//fin boucle
                 /*
-                 * nettoyage des concatenations
+                 * nettoyage des concatenations en retirant les "," ou "?" en trop à la fin de mes chaines de caractères
                  */
                 $lsContenu2 = substr($lsContenu2, 0, -1);
                 $lsContenu3 = substr($lsContenu3, 0, -1);
