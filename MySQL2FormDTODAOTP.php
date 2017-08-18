@@ -213,7 +213,7 @@ if ($btValiderTout != null) {
                     $lsContenu3.= $lscolonnes[$i] . ","; // pour l'ordre sql de INSERT
                     $lsContenu4.= "?,"; // pour l'ordre sql de INSERT
 
-                    if ($lscolonnes !== $lsPrimaryKey[0]) {//pour le tValeurs de l'UPDATE et son ordre sql sans la PK qui ira dans le WHERE. la PK sera également utilisée pour le DELETE
+                    if ($lscolonnes[$i] !== $lsPrimaryKey[0]) {//pour le tValeurs de l'UPDATE et son ordre sql sans la PK qui ira dans le WHERE. la PK sera également utilisée pour le DELETE
                         $lsContenu5.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lscolonnes[$i]) . "(),";
                         $lsContenu6.= $lscolonnes[$i] . "= ?,";
                     }//fin if
@@ -226,7 +226,7 @@ if ($btValiderTout != null) {
                 $lsContenu4 = substr($lsContenu4, 0, -1);
                 $lsContenu6 = substr($lsContenu6, 0, -1);
                 /*
-                 * j'ajoute à tValeurs de UPTADE la PK à la fin
+                 * j'ajoute à tValeurs de UPTADE la PK à la fin car le where (PK) est à la fin dans l'ordre sql (cela respectera l'ordre des "?")
                  */
                 $lsContenu5.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lsPrimaryKey[0]) . "()";
 
