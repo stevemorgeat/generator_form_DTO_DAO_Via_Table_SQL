@@ -40,7 +40,7 @@ Connexion::initialiserTransaction($lcnx); //beginTransaction() (on commence la t
  */
 $tBDs = Metabase::getBDsFromServeur($lcnx);
 foreach ($tBDs as $bd) {
-    if ($bd !== "information_schema" &&$bd !== "afg_paysagiste" &&$bd !== "mysql" && $bd !== "performance_schema" && $bd !== "phpmyadmin" && $bd !== "test") {// je garde que la base de donnée "cours"
+    if ($bd !== "information_schema" && $bd !== "afg_paysagiste" && $bd !== "mysql" && $bd !== "performance_schema" && $bd !== "phpmyadmin" && $bd !== "test") {// je garde que la base de donnée "cours"
         $listesBDs .= "<option>$bd</option>";
     }
 }
@@ -83,8 +83,8 @@ if ($btValiderTout != null) {
             /*
               mode fetchAll
              */
-            
-            
+
+
             /*
               La première ligne
               http://php.net/manual/fr/function.each.php
@@ -170,17 +170,30 @@ if ($btValiderTout != null) {
                     $lsSnake = new TravailChaineCaractere(); //préparation à la méthode camelize et snakeToUpperTitre
                     $lsContenu.= "private $" . $lsSnake->camelize($tEntetes[$i]) . ";\n";
                     /*
+                     * création des variables du construct__
+                     */
+                    $lsContenu3.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($tEntetes[$i]) . "='', ";
+                    $lsContenu4.= "&#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "= $" . $lsSnake->camelize($tEntetes[$i]) . ";\n";
+
+
+                    /*
                      * dans lsContenu2 je stock les public function getters et setters
                      */
                     $lsContenu2.= "public function get" . $lsSnake->snakeToMajPremierelettreMot($tEntetes[$i]) . "(){\n";
-                    $lsContenu2.= "return &#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "\n}\n\n";
+                    $lsContenu2.= "return &#36;this->" . $lsSnake->camelize($tEntetes[$i]) . ";\n}\n\n";
                     $lsContenu2.= "public function set" . $lsSnake->snakeToMajPremierelettreMot($tEntetes[$i]) . "($" . $lsSnake->camelize($tEntetes[$i]) . "){\n";
-                    $lsContenu2.= "&#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "= $" . $lsSnake->camelize($tEntetes[$i]) . "\n}\n\n";
+                    $lsContenu2.= "&#36;this->" . $lsSnake->camelize($tEntetes[$i]) . "= $" . $lsSnake->camelize($tEntetes[$i]) . ";\n}\n\n";
                 }
-                $lsContenu.="\n//--méthode\n\n";
+                $lsContenu.= "\n\n//--constructor\n\n";
+                //on retire la derniere virgule et espace introduit avec la boucle
+                $lsContenu3 = substr($lsContenu3, 0, -2);
+                $lsContenu.= "function __construct(" . $lsContenu3 . ") {\n";
+                $lsContenu.= $lsContenu4;
+                $lsContenu.= "\n} \n\n";
+                $lsContenu.= "\n//--méthode\n\n";
                 $lsContenu.= $lsContenu2;
 
-                $lsContenu.="\n\n}\n\n?>";
+                $lsContenu.= "\n\n}\n\n?>";
 
                 /*
                  * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
@@ -213,7 +226,7 @@ if ($btValiderTout != null) {
                     $lsContenu3.= $lscolonnes[$i] . ","; // pour l'ordre sql de INSERT
                     $lsContenu4.= "?,"; // pour l'ordre sql de INSERT
 
-                    if ($lscolonnes !== $lsPrimaryKey[0]) {//pour le tValeurs de l'UPDATE et son ordre sql sans la PK qui ira dans le WHERE. la PK sera également utilisée pour le DELETE
+                    if ($lscolonnes[$i] !== $lsPrimaryKey[0]) {//pour le tValeurs de l'UPDATE et son ordre sql sans la PK qui ira dans le WHERE. la PK sera également utilisée pour le DELETE
                         $lsContenu5.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lscolonnes[$i]) . "(),";
                         $lsContenu6.= $lscolonnes[$i] . "= ?,";
                     }//fin if
@@ -226,7 +239,7 @@ if ($btValiderTout != null) {
                 $lsContenu4 = substr($lsContenu4, 0, -1);
                 $lsContenu6 = substr($lsContenu6, 0, -1);
                 /*
-                 * j'ajoute à tValeurs de UPTADE la PK à la fin
+                 * j'ajoute à tValeurs de UPTADE la PK à la fin car le where (PK) est à la fin dans l'ordre sql (cela respectera l'ordre des "?")
                  */
                 $lsContenu5.= "&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lsPrimaryKey[0]) . "()";
 
@@ -244,13 +257,13 @@ if ($btValiderTout != null) {
                 $lsContenu.= "public static function insert(PDO &#36;pcnx, &#36;$nomTable) {\n\n\n";
 
                 $lsContenu.= "&#36;tValeurs = array($lsContenu2);\n\n";
-                $lsContenu.= "&#36;lsSQL = 'INSERT INTO $nomTable($lsContenu3) VALUES($lsContenu4)'\n\n";
+                $lsContenu.= "&#36;lsSQL = 'INSERT INTO $nomTable($lsContenu3) VALUES($lsContenu4)';\n\n";
                 $lsContenu.= "try {\n\n";
                 $lsContenu.= "&#36;lcmd = &#36;pcnx->prepare(&#36;lsSQL);\n";
                 $lsContenu.= "&#36;lcmd->execute(&#36;tValeurs);\n";
                 $lsContenu.= "&#36;lsMessage = &#36;lcmd->rowcount();\n";
                 $lsContenu.= "} catch (PDOException &#36;e) {\n";
-                $lsContenu.= "&#36;lsMessage = 'Echec de l'exécution : ' . htmlentities(&#36;e->getMessage());\n";
+                $lsContenu.= "&#36;lsMessage = 'Echec de l\'exécution : ' . htmlentities(&#36;e->getMessage());\n";
                 $lsContenu.= "}\n";
                 $lsContenu.= "return &#36;lsMessage;\n";
                 $lsContenu.= "}\n";
@@ -260,17 +273,17 @@ if ($btValiderTout != null) {
                  */
 
                 $lsContenu.= "\n\n//=================================================================================\n/**\n*UPDATE\n* @param PDO &#36;pcnx\n* @param type $nomTable\n* @return string\n*/\n";
-                $lsContenu.= "public static function insert(PDO &#36;pcnx, &#36;$nomTable) {\n\n\n";
+                $lsContenu.= "public static function update(PDO &#36;pcnx, &#36;$nomTable) {\n\n\n";
 
 
                 $lsContenu.= "&#36;tValeurs = array($lsContenu5);\n\n";
-                $lsContenu.= "&#36;lsSQL = 'UPDATE $nomTable SET $lsContenu6 WHERE $lsPrimaryKey[0]= ?'\n\n";
+                $lsContenu.= "&#36;lsSQL = 'UPDATE $nomTable SET $lsContenu6 WHERE $lsPrimaryKey[0]= ?';\n\n";
                 $lsContenu.= "try {\n\n";
                 $lsContenu.= "&#36;lcmd = &#36;pcnx->prepare(&#36;lsSQL);\n";
                 $lsContenu.= "&#36;lcmd->execute(&#36;tValeurs);\n";
                 $lsContenu.= "&#36;lsMessage = &#36;lcmd->rowcount();\n";
                 $lsContenu.= "} catch (PDOException &#36;e) {\n";
-                $lsContenu.= "&#36;lsMessage = 'Echec de l'exécution : ' . htmlentities(&#36;e->getMessage());\n";
+                $lsContenu.= "&#36;lsMessage = 'Echec de l\'exécution : ' . htmlentities(&#36;e->getMessage());\n";
                 $lsContenu.= "}\n";
                 $lsContenu.= "return &#36;lsMessage;\n";
                 $lsContenu.= "}\n";
@@ -280,23 +293,23 @@ if ($btValiderTout != null) {
                  */
 
                 $lsContenu.= "\n\n//=================================================================================\n/**\n*DELETE\n* @param PDO &#36;pcnx\n* @param type $nomTable\n* @return string\n*/\n";
-                $lsContenu.= "public static function insert(PDO &#36;pcnx, &#36;$nomTable) {\n\n\n";
+                $lsContenu.= "public static function delete(PDO &#36;pcnx, &#36;$nomTable) {\n\n\n";
 
 
-                $lsContenu.= "&#36;tValeurs = array(" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lsPrimaryKey[0]) . "());\n\n";
-                $lsContenu.= "&#36;lsSQL = 'DELETE FROM $nomTable WHERE $lsPrimaryKey[0]= ?'\n\n";
+                $lsContenu.= "&#36;tValeurs = array(&#36;" . $lsCar->snakeToMajPremierelettreMot($nomTable) . "->get" . $lsCar->snakeToMajPremierelettreMot($lsPrimaryKey[0]) . "());\n\n";
+                $lsContenu.= "&#36;lsSQL = 'DELETE FROM $nomTable WHERE $lsPrimaryKey[0]= ?';\n\n";
                 $lsContenu.= "try {\n\n";
                 $lsContenu.= "&#36;lcmd = &#36;pcnx->prepare(&#36;lsSQL);\n";
                 $lsContenu.= "&#36;lcmd->execute(&#36;tValeurs);\n";
                 $lsContenu.= "&#36;lsMessage = &#36;lcmd->rowcount();\n";
                 $lsContenu.= "} catch (PDOException &#36;e) {\n";
-                $lsContenu.= "&#36;lsMessage = 'Echec de l'exécution : ' . htmlentities(&#36;e->getMessage());\n";
+                $lsContenu.= "&#36;lsMessage = 'Echec de l\'exécution : ' . htmlentities(&#36;e->getMessage());\n";
                 $lsContenu.= "}\n";
                 $lsContenu.= "return &#36;lsMessage;\n";
                 $lsContenu.= "}\n\n";
 
 
-                $lsContenu.= "}///Fin Class DTO\n"; // fin de la Class DTO sans les "SELECT"
+                $lsContenu.= "}///Fin Class DTO\n\n?>"; // fin de la Class DTO sans les "SELECT"
 
                 /*
                  * Utilisation de &lt; &gt; pour remplacer les chevrons "<" ">"
